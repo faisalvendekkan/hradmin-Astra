@@ -20,6 +20,8 @@ ServerSignature Off
   # Serve real static files directly
   RewriteCond %{REQUEST_FILENAME} -f
   RewriteRule ^assets/ - [L]
+  RewriteCond %{REQUEST_FILENAME} -f
+  RewriteRule ^(site\.webmanifest|sw\.js)$ - [L]
 
   # Everything else goes to the front controller
   RewriteRule ^ index.php [QSA,L]
@@ -41,3 +43,4 @@ ServerSignature Off
 </IfModule>
 
 AddType font/woff2 .woff2
+AddType application/manifest+json .webmanifest

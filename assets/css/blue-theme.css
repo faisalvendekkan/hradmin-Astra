@@ -351,6 +351,149 @@ textarea {
   box-shadow: 0 0 0 3px rgba(240,139,128,.16), 0 0 12px rgba(240,139,128,.40);
 }
 
+/* Dashboard attendance lead card */
+.attendance-hero {
+  padding: 22px;
+  margin-bottom: 16px;
+  overflow: hidden;
+}
+.attendance-hero-main {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.attendance-hero h2 { font-size: 20px; }
+.attendance-hero p {
+  color: var(--text-2);
+  margin-top: 3px;
+}
+.attendance-hero-grid {
+  display: grid;
+  grid-template-columns: 132px minmax(0, 1fr);
+  gap: 22px;
+  align-items: center;
+}
+.attendance-ring {
+  width: 132px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  align-content: center;
+  background:
+    radial-gradient(closest-side, var(--surface) 70%, transparent 72%),
+    conic-gradient(var(--accent) calc(var(--p) * 1%), var(--neutral-soft) 0);
+}
+.attendance-ring b {
+  font-size: 28px;
+  line-height: 1;
+  color: var(--text);
+  font-variant-numeric: tabular-nums;
+}
+.attendance-ring span {
+  margin-top: 5px;
+  font-size: 12px;
+  color: var(--muted);
+}
+.attendance-hero-body { min-width: 0; }
+.att-legend-hero {
+  grid-template-columns: repeat(3, minmax(120px, 1fr));
+  margin-top: 16px;
+}
+.horizon-compact {
+  padding: 18px 18px 20px;
+  margin-bottom: 0;
+}
+.horizon-compact .horizon-head {
+  gap: 12px;
+  margin-bottom: 16px;
+}
+.horizon-compact .horizon-figures { gap: 14px; }
+.horizon-compact .horizon-figures b { font-size: 20px; }
+.horizon-compact .track {
+  height: 94px;
+  min-height: 94px;
+}
+.horizon-compact .track-window { top: 5px; bottom: 22px; }
+.horizon-compact .track-overdue { top: 9px; bottom: 22px; }
+.horizon-compact .tick:nth-of-type(4) { display: none; }
+
+/* PWA install prompt and startup intro */
+.pwa-prompt {
+  position: fixed;
+  right: 20px;
+  bottom: 20px;
+  z-index: 82;
+  width: min(360px, calc(100vw - 32px));
+  background: var(--surface);
+  border: 1px solid var(--line-strong);
+  border-radius: var(--radius-l);
+  box-shadow: 0 24px 54px -28px rgba(6, 25, 58, .45);
+  padding: 16px;
+}
+.pwa-prompt-head {
+  display: flex;
+  align-items: flex-start;
+  gap: 12px;
+}
+.pwa-prompt .brand-mark {
+  width: 38px;
+  height: 38px;
+  margin: 0;
+  flex: none;
+}
+.pwa-prompt h2 { font-size: 15px; }
+.pwa-prompt p {
+  margin-top: 3px;
+  color: var(--text-2);
+  font-size: 13px;
+}
+.pwa-prompt .icon-btn {
+  width: 32px;
+  height: 32px;
+  margin-left: auto;
+}
+.pwa-prompt-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 8px;
+  margin-top: 14px;
+}
+.app-intro {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: grid;
+  place-items: center;
+  background:
+    radial-gradient(circle at 50% 35%, rgba(17,103,255,.14), transparent 18rem),
+    #f4f7fb;
+  animation: intro-out .42s ease .95s forwards;
+}
+.intro-card {
+  display: grid;
+  place-items: center;
+  gap: 14px;
+  color: #08152f;
+  animation: intro-pop .65s cubic-bezier(.2,.8,.2,1);
+}
+.intro-card .brand-mark {
+  width: 64px;
+  height: 64px;
+  border-radius: 18px;
+}
+.intro-card strong {
+  font-size: 18px;
+  letter-spacing: -.01em;
+}
+@keyframes intro-pop {
+  from { opacity: 0; transform: translateY(8px) scale(.96); }
+}
+@keyframes intro-out {
+  to { opacity: 0; visibility: hidden; }
+}
 
 /* ---------- Prompts & Notes workspace ---------- */
 .workspace-grid {
@@ -410,6 +553,63 @@ textarea {
 .workspace-actions form { margin: 0; }
 
 @media (max-width: 720px) {
+  .topbar {
+    height: 58px;
+    gap: 8px;
+    padding: 0 12px;
+  }
+  .icon-btn,
+  .search-trigger,
+  .ask-btn {
+    width: 36px;
+    height: 36px;
+    min-height: 36px;
+    border-radius: 10px;
+  }
+  .btn {
+    min-height: 34px;
+    height: 34px;
+    padding: 0 10px;
+    font-size: 12.5px;
+  }
+  .btn-sm {
+    min-height: 30px;
+    height: 30px;
+    padding: 0 9px;
+  }
+  .content { padding: 18px 12px 44px; }
+  .page-head { margin-bottom: 18px; }
+  .attendance-hero { padding: 18px; }
+  .attendance-hero-main {
+    align-items: center;
+    margin-bottom: 16px;
+  }
+  .attendance-hero-main .btn {
+    width: 36px;
+    padding: 0;
+    overflow: hidden;
+  }
+  .attendance-hero-main .btn .i { margin: 0; }
+  .attendance-hero-main .btn span { display: none; }
+  .attendance-hero-grid {
+    grid-template-columns: 92px minmax(0, 1fr);
+    gap: 14px;
+  }
+  .attendance-ring { width: 92px; }
+  .attendance-ring b { font-size: 22px; }
+  .att-legend-hero { grid-template-columns: minmax(0, 1fr); }
+  .horizon-compact .horizon-figures {
+    width: 100%;
+    justify-content: space-between;
+  }
+  .pwa-prompt {
+    right: 12px;
+    bottom: 12px;
+    width: calc(100vw - 24px);
+  }
+  .pwa-prompt-actions .btn {
+    flex: 0 0 auto;
+  }
   .workspace-grid {
     grid-template-columns: minmax(0, 1fr);
     padding: 12px;

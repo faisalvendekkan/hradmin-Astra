@@ -38,6 +38,7 @@ $mcpHasToken = setting('mcp_token_hash', '') !== '';
         <li><?= icon('shield') ?><div class="grow"><div class="title">Connection</div><div class="sub"><?= is_https() ? 'HTTPS with strict transport security' : 'Not using HTTPS. Turn on SSL in hPanel, then enable the redirect in .htaccess.' ?></div></div><span class="badge tone-<?= is_https() ? 'ok' : 'danger' ?>"><?= is_https() ? 'Secure' : 'Action needed' ?></span></li>
         <li><?= icon('db') ?><div class="grow"><div class="title">Database schema</div><div class="sub">Version <?= $schema ?>. New migrations run automatically after each deploy.</div></div></li>
         <li><?= icon('download') ?><div class="grow"><div class="title">Full backup</div><div class="sub">Every record as a JSON file. Also use hPanel backups for the database.</div></div><a class="btn btn-sm" href="<?= e(url('settings/backup')) ?>">Download</a></li>
+        <li><?= icon('apps') ?><div class="grow"><div class="title">App shortcut</div><div class="sub" id="pwa-settings-status">Install this workspace on supported browsers, or open it if it is already installed.</div></div><button class="btn btn-sm" type="button" data-action="pwa-show" id="pwa-settings-button"><?= icon('download') ?>Install app</button></li>
       </ul>
     </section>
   </div>

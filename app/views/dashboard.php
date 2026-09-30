@@ -30,32 +30,40 @@ $windowPct = 12 + (min($window, 90) / 90) * 86 - 12;
   <?php endif; ?>
 </div>
 
-<section class="panel horizon" aria-labelledby="horizon-title">
-  <div class="horizon-head">
+<?php if ($attendance):
+  $active = max(0, (int) $attendance['active']);
+  $marked = max(0, $active - (int) $attendance['unmarked']);
+  $total = max(1, $active);
+  $markedPct = $active ? round($marked / $total * 100) : 0;
+?>
+<section class="panel attendance-hero" aria-labelledby="attendance-title">
+  <div class="attendance-hero-main">
     <div>
-      <h2 id="horizon-title">Renewal horizon</h2>
-      <p>Every ID, visa, document, vehicle and deadline over the next 90 days.</p>
+      <h2 id="attendance-title">Attendance today</h2>
+      <p><?= $marked ?> of <?= $active ?> marked</p>
     </div>
-    <div class="horizon-figures">
-      <div class="f-danger"><b><?= $expiredN ?></b><span>Overdue</span></div>
-      <div class="f-accent"><b><?= $windowN ?></b><span>Within <?= (int) $window ?> days</span></div>
-      <div><b><?= $laterN ?></b><span>Later</span></div>
-    </div>
+    <a class="btn btn-primary" href="<?= e(url('attendance')) ?>"><?= icon('clock') ?><span>Open roster</span></a>
   </div>
-  <div class="track" role="list" aria-label="Upcoming expiries">
-    <div class="track-overdue"></div>
-    <div class="track-window" style="width:<?= number_format($windowPct, 2, '.', '') ?>%" data-label="Alert window"></div>
-    <?php if (!$blips): ?><div class="horizon-empty">No expiries or deadlines in the next 90 days.</div><?php endif; ?>
-    <?php foreach ($blips as [$x, $y, $cls, $a]): ?>
-      <a class="blip <?= $cls ?>" role="listitem" href="<?= e(url($a['link'])) ?>" style="left:<?= number_format($x, 2, '.', '') ?>%;top:<?= $y ?>%" data-tip="<?= e($a['title'] . ' — ' . $a['label'] . ', ' . rel_days($a['days'])) ?>" aria-label="<?= e($a['title'] . ', ' . $a['label'] . ', ' . rel_days($a['days'])) ?>"></a>
-    <?php endforeach; ?>
-    <span class="tick first" style="left:0">Overdue</span>
-    <span class="tick" style="left:12%">Today</span>
-    <span class="tick" style="left:<?= 12 + 86 / 3 ?>%">30 days</span>
-    <span class="tick" style="left:<?= 12 + 86 * 2 / 3 ?>%">60 days</span>
-    <span class="tick" style="left:98%">90 days</span>
+  <div class="attendance-hero-grid">
+    <div class="attendance-ring" style="--p:<?= $markedPct ?>">
+      <b><?= $markedPct ?>%</b>
+      <span>Marked</span>
+    </div>
+    <div class="attendance-hero-body">
+      <div class="att-bar" aria-hidden="true">
+        <?php foreach (['present', 'remote', 'late', 'on_leave', 'absent'] as $s): if (!empty($attendance['marks'][$s])): ?><i class="c-<?= $s ?>" style="width:<?= round($attendance['marks'][$s] / $total * 100, 2) ?>%"></i><?php endif; endforeach; ?>
+        <?php if ($attendance['unmarked'] > 0): ?><i class="c-unmarked" style="width:<?= round($attendance['unmarked'] / $total * 100, 2) ?>%"></i><?php endif; ?>
+      </div>
+      <div class="att-legend att-legend-hero">
+        <?php foreach (['present' => 'Present', 'remote' => 'Remote', 'late' => 'Late', 'on_leave' => 'On leave', 'absent' => 'Absent'] as $s => $l): ?>
+          <span><i class="sw c-<?= $s ?>"></i><?= $l ?><b><?= (int) ($attendance['marks'][$s] ?? 0) ?></b></span>
+        <?php endforeach; ?>
+        <span><i class="sw c-unmarked"></i>Not marked<b><?= (int) $attendance['unmarked'] ?></b></span>
+      </div>
+    </div>
   </div>
 </section>
+<?php endif; ?>
 
 <?php if ($stats): ?>
 <div class="metrics">
@@ -87,22 +95,31 @@ $windowPct = 12 + (min($window, 90) / 90) * 86 - 12;
   </section>
 
   <div class="stack">
-    <?php if ($attendance): $total = max(1, $attendance['active']); ?>
-    <section class="panel">
-      <div class="panel-head"><div><h2>Attendance today</h2><p><?= $attendance['active'] - $attendance['unmarked'] ?> of <?= $attendance['active'] ?> marked</p></div><a class="link-more" href="<?= e(url('attendance')) ?>">Roster<?= icon('chevron', 'i i-sm') ?></a></div>
-      <div class="panel-body">
-        <div class="att-bar" aria-hidden="true">
-          <?php foreach (['present', 'remote', 'late', 'on_leave', 'absent'] as $s): if (!empty($attendance['marks'][$s])): ?><i class="c-<?= $s ?>" style="width:<?= round($attendance['marks'][$s] / $total * 100, 2) ?>%"></i><?php endif; endforeach; ?>
+    <section class="panel horizon horizon-compact" aria-labelledby="horizon-title-compact">
+      <div class="horizon-head">
+        <div>
+          <h2 id="horizon-title-compact">Renewal horizon</h2>
+          <p>Next 90 days</p>
         </div>
-        <div class="att-legend">
-          <?php foreach (['present' => 'Present', 'remote' => 'Remote', 'late' => 'Late', 'on_leave' => 'On leave', 'absent' => 'Absent'] as $s => $l): ?>
-            <span><i class="sw c-<?= $s ?>"></i><?= $l ?><b><?= (int) ($attendance['marks'][$s] ?? 0) ?></b></span>
-          <?php endforeach; ?>
-          <span><i class="sw c-unmarked"></i>Not marked<b><?= $attendance['unmarked'] ?></b></span>
+        <div class="horizon-figures">
+          <div class="f-danger"><b><?= $expiredN ?></b><span>Overdue</span></div>
+          <div class="f-accent"><b><?= $windowN ?></b><span><?= (int) $window ?> days</span></div>
+          <div><b><?= $laterN ?></b><span>Later</span></div>
         </div>
       </div>
+      <div class="track" role="list" aria-label="Upcoming expiries">
+        <div class="track-overdue"></div>
+        <div class="track-window" style="width:<?= number_format($windowPct, 2, '.', '') ?>%" data-label="Alert window"></div>
+        <?php if (!$blips): ?><div class="horizon-empty">No expiries or deadlines in the next 90 days.</div><?php endif; ?>
+        <?php foreach ($blips as [$x, $y, $cls, $a]): ?>
+          <a class="blip <?= $cls ?>" role="listitem" href="<?= e(url($a['link'])) ?>" style="left:<?= number_format($x, 2, '.', '') ?>%;top:<?= $y ?>%" data-tip="<?= e($a['title'] . ' — ' . $a['label'] . ', ' . rel_days($a['days'])) ?>" aria-label="<?= e($a['title'] . ', ' . $a['label'] . ', ' . rel_days($a['days'])) ?>"></a>
+        <?php endforeach; ?>
+        <span class="tick first" style="left:0">Overdue</span>
+        <span class="tick" style="left:12%">Today</span>
+        <span class="tick" style="left:<?= 12 + 86 / 3 ?>%">30 days</span>
+        <span class="tick" style="left:98%">90 days</span>
+      </div>
     </section>
-    <?php endif; ?>
 
     <?php if (can('leave')): ?>
     <section class="panel">

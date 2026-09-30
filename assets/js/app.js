@@ -8,6 +8,7 @@
   const CFG = cfgEl ? JSON.parse(cfgEl.textContent) : { base: '', csrf: '' };
   const url = (p) => (CFG.base || '') + '/' + String(p).replace(/^\//, '');
   const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
+  const appHome = (CFG.base || '') + '/';
 
   const api = async (path, body, method = 'POST') => {
     const res = await fetch(url(path), {
@@ -95,11 +96,152 @@
       }
       case 'ai-models': aiModels(t); break;
       case 'ai-test': aiTest(t); break;
+      case 'pwa-install': PWA.install(); break;
+      case 'pwa-open': window.location.href = appHome; break;
+      case 'pwa-close': PWA.close(true); break;
+      case 'pwa-show': PWA.show(true); break;
     }
   });
 
   const scrim = $('#scrim');
   if (scrim) scrim.addEventListener('click', () => { $('#sidebar')?.classList.remove('open'); AI.close(); scrim.classList.remove('show'); });
+
+  // ---------- Startup intro ----------
+  const intro = $('#app-intro');
+  if (intro) {
+    let seen = false;
+    try { seen = sessionStorage.getItem('mhr-intro-seen') === '1'; } catch (e) {}
+    if (!seen && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+      intro.hidden = false;
+      try { sessionStorage.setItem('mhr-intro-seen', '1'); } catch (e) {}
+      setTimeout(() => { intro.hidden = true; }, 1500);
+    }
+  }
+
+  // ---------- Installable app ----------
+  const PWA = (() => {
+    const prompt = $('#pwa-prompt');
+    const action = $('#pwa-action');
+    const title = $('#pwa-title');
+    const text = $('#pwa-text');
+    const settingsBtn = $('#pwa-settings-button');
+    const settingsStatus = $('#pwa-settings-status');
+    const standalone = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    let deferred = null;
+    let installed = standalone;
+
+    const dismissed = () => {
+      try {
+        const until = Number(localStorage.getItem('mhr-pwa-dismissed') || 0);
+        return until && Date.now() < until;
+      } catch (e) {
+        return false;
+      }
+    };
+    const rememberDismissed = () => {
+      try { localStorage.setItem('mhr-pwa-dismissed', String(Date.now() + 14 * 86400000)); } catch (e) {}
+    };
+    const setInstalled = (v) => {
+      installed = !!v;
+      if (installed) {
+        try { localStorage.setItem('mhr-pwa-installed', '1'); } catch (e) {}
+      }
+      updateSettings();
+    };
+    const updatePrompt = () => {
+      if (!prompt || !action) return;
+      if (installed) {
+        title.textContent = 'Open AI Workspace';
+        text.textContent = 'The app is installed. Open the app shortcut for a focused workspace.';
+        action.dataset.action = 'pwa-open';
+        action.innerHTML = '<svg class="i"><use href="#i-external"></use></svg><span>Open app</span>';
+      } else {
+        title.textContent = 'Install AI Workspace';
+        text.textContent = deferred
+          ? 'Add this HR workspace to your device for faster access.'
+          : 'Your browser will show install options when this site is eligible.';
+        action.dataset.action = 'pwa-install';
+        action.innerHTML = '<svg class="i"><use href="#i-download"></use></svg><span>Install app</span>';
+      }
+    };
+    const updateSettings = () => {
+      if (!settingsBtn) return;
+      if (standalone) {
+        settingsBtn.hidden = true;
+        if (settingsStatus) settingsStatus.textContent = 'You are already using the installed app.';
+        return;
+      }
+      if (installed) {
+        settingsBtn.dataset.action = 'pwa-open';
+        settingsBtn.innerHTML = '<svg class="i"><use href="#i-external"></use></svg>Open app';
+        if (settingsStatus) settingsStatus.textContent = 'The app is installed on this device.';
+      } else {
+        settingsBtn.dataset.action = 'pwa-show';
+        settingsBtn.innerHTML = '<svg class="i"><use href="#i-download"></use></svg>Install app';
+        if (settingsStatus) settingsStatus.textContent = deferred
+          ? 'Install this workspace on this device.'
+          : 'Install this workspace on supported browsers.';
+      }
+    };
+    const show = (manual = false) => {
+      if (!prompt || standalone) return;
+      updatePrompt();
+      if (!manual && dismissed()) return;
+      prompt.hidden = false;
+    };
+    const close = (persist = false) => {
+      if (prompt) prompt.hidden = true;
+      if (persist) rememberDismissed();
+    };
+    const install = async () => {
+      if (installed) {
+        window.location.href = appHome;
+        return;
+      }
+      if (!deferred) {
+        toast('Install is not available in this browser yet. Use your browser menu, or try Chrome/Edge.', 'info');
+        return;
+      }
+      deferred.prompt();
+      const choice = await deferred.userChoice;
+      deferred = null;
+      if (choice && choice.outcome === 'accepted') {
+        close(false);
+        setInstalled(true);
+      } else {
+        updateSettings();
+      }
+    };
+
+    if ('serviceWorker' in navigator) {
+      navigator.serviceWorker.register(url('sw.js')).catch(() => {});
+    }
+    if (!standalone) {
+      try { installed = localStorage.getItem('mhr-pwa-installed') === '1'; } catch (e) {}
+      if ('getInstalledRelatedApps' in navigator) {
+        navigator.getInstalledRelatedApps().then((apps) => {
+          if (apps && apps.length) setInstalled(true);
+        }).catch(() => {});
+      }
+      window.addEventListener('beforeinstallprompt', (ev) => {
+        ev.preventDefault();
+        deferred = ev;
+        updateSettings();
+        setTimeout(() => show(false), 700);
+      });
+      window.addEventListener('appinstalled', () => {
+        deferred = null;
+        close(false);
+        setInstalled(true);
+        toast('AI Workspace installed.', 'success');
+      });
+      setTimeout(updateSettings, 200);
+    } else {
+      updateSettings();
+    }
+
+    return { show, close, install };
+  })();
 
   // ---------- Forms: busy state, auto-submit, confirm ----------
   document.addEventListener('submit', (ev) => {

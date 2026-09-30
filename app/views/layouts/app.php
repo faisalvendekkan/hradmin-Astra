@@ -80,6 +80,7 @@ $config = [
     'ai'      => $aiReady && can('assistant'),
     'alerts'  => setting('alert_browser') === '1' && can('notifications'),
     'company' => $company,
+    'appName' => 'AI Workspace',
 ];
 ?><!doctype html>
 <html lang="en" data-theme="light">
@@ -93,10 +94,18 @@ $config = [
 <link rel="preload" href="<?= e(asset('fonts/Geist-Variable.woff2')) ?>" as="font" type="font/woff2" crossorigin>
 <link rel="stylesheet" href="<?= e(asset('css/app.css')) ?>">
 <link rel="stylesheet" href="<?= e(asset('css/blue-theme.css')) ?>">
+<link rel="manifest" href="<?= e(url('site.webmanifest')) ?>">
+<meta name="theme-color" content="#1167ff">
 <link rel="icon" href="data:image/svg+xml,<?= rawurlencode('<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24"><rect width="24" height="24" rx="6" fill="#0e1117"/><circle cx="12" cy="12" r="7" fill="none" stroke="#8ea2ff" stroke-width="1.6"/><circle cx="15.5" cy="12" r="1.6" fill="#8ea2ff"/></svg>') ?>">
 </head>
 <body>
 <?php View::partial('icons'); ?>
+<div class="app-intro" id="app-intro" hidden aria-hidden="true">
+  <div class="intro-card">
+    <span class="brand-mark"><?php View::partial('logo'); ?></span>
+    <strong>AI Workspace</strong>
+  </div>
+</div>
 <a class="sr-only" href="#main">Skip to content</a>
 <div class="shell">
   <aside class="sidebar" id="sidebar" aria-label="Main navigation">
@@ -205,6 +214,21 @@ $config = [
     </div>
   </form>
 </dialog>
+
+<div class="pwa-prompt" id="pwa-prompt" hidden role="dialog" aria-live="polite" aria-label="Install AI Workspace">
+  <div class="pwa-prompt-head">
+    <span class="brand-mark"><?php View::partial('logo'); ?></span>
+    <div>
+      <h2 id="pwa-title">Install AI Workspace</h2>
+      <p id="pwa-text">Add this HR workspace to your device for faster access.</p>
+    </div>
+    <button class="icon-btn" type="button" data-action="pwa-close" aria-label="Close install prompt"><?= icon('x') ?></button>
+  </div>
+  <div class="pwa-prompt-actions">
+    <button class="btn btn-quiet" type="button" data-action="pwa-close">Later</button>
+    <button class="btn btn-primary" type="button" data-action="pwa-install" id="pwa-action"><?= icon('download') ?><span>Install app</span></button>
+  </div>
+</div>
 
 <div class="toasts" id="toasts" role="status" aria-live="polite">
   <?php foreach (take_flashes() as $f): ?>
