@@ -470,14 +470,14 @@ textarea {
   background:
     radial-gradient(circle at 50% 35%, rgba(17,103,255,.14), transparent 18rem),
     #f4f7fb;
-  animation: intro-out .42s ease .95s forwards;
+  animation: intro-out .28s ease .72s forwards;
 }
 .intro-card {
   display: grid;
   place-items: center;
   gap: 14px;
   color: #08152f;
-  animation: intro-pop .65s cubic-bezier(.2,.8,.2,1);
+  animation: intro-pop .52s cubic-bezier(.2,.8,.2,1);
 }
 .intro-card .brand-mark {
   width: 64px;
@@ -493,6 +493,60 @@ textarea {
 }
 @keyframes intro-out {
   to { opacity: 0; visibility: hidden; }
+}
+.progress-loader {
+  position: fixed;
+  inset: 0;
+  z-index: 98;
+  display: grid;
+  place-items: center;
+  background: rgba(244, 247, 251, .72);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+.progress-card {
+  width: min(340px, calc(100vw - 36px));
+  padding: 18px;
+  border: 1px solid rgba(17,35,68,.10);
+  border-radius: 18px;
+  background: rgba(255,255,255,.94);
+  box-shadow: 0 22px 55px -30px rgba(7, 26, 60, .45);
+}
+.progress-card .brand-mark {
+  width: 44px;
+  height: 44px;
+  margin-bottom: 14px;
+}
+.progress-copy {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 14px;
+  margin-bottom: 12px;
+}
+.progress-copy strong {
+  color: var(--text);
+  font-size: 14px;
+}
+.progress-copy span {
+  color: var(--accent);
+  font-size: 13px;
+  font-weight: 700;
+  font-variant-numeric: tabular-nums;
+}
+.progress-track {
+  height: 7px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(17, 103, 255, .10);
+}
+.progress-track i {
+  display: block;
+  width: 0;
+  height: 100%;
+  border-radius: inherit;
+  background: linear-gradient(90deg, #1167ff, #57a2ff);
+  transition: width .16s ease;
 }
 
 /* ---------- Prompts & Notes workspace ---------- */

@@ -6,7 +6,7 @@
   </div>
 </div>
 
-<form class="panel" method="post" action="<?= e(url('candidates/save')) ?>" data-busy id="cv-form">
+<form class="panel" method="post" action="<?= e(url('candidates/save')) ?>" data-busy data-progress id="cv-form">
   <?= csrf_field() ?>
   <div class="form-section">
     <h3>The CV</h3>

@@ -10,7 +10,7 @@ $self = $id === (int) user()['id'];
   </div>
 </div>
 
-<form class="panel" method="post" action="<?= e(url('users/save')) ?>" data-busy data-user-form>
+<form class="panel" method="post" action="<?= e(url('users/save')) ?>" data-busy data-progress data-user-form>
   <?= csrf_field() ?>
   <input type="hidden" name="id" value="<?= $id ?>">
   <div class="form-section">
@@ -20,12 +20,9 @@ $self = $id === (int) user()['id'];
       <div class="field"><label for="name">Full name<span class="req">*</span></label><input id="name" name="name" value="<?= e($u['name']) ?>" required maxlength="120"></div>
       <div class="field"><label for="email">Email<span class="req">*</span></label><input id="email" name="email" type="email" value="<?= e($u['email']) ?>" required autocomplete="off"></div>
       <div class="field">
-        <label for="password"><?= $id ? 'New password' : 'Temporary password' ?><?= $id ? '' : '<span class="req">*</span>' ?></label>
+        <label for="password"><?= $id ? 'Admin-set new password' : 'Admin-set password' ?><?= $id ? '' : '<span class="req">*</span>' ?></label>
         <div class="pw-wrap"><input id="password" name="password" type="password" autocomplete="new-password" <?= $id ? '' : 'required' ?> data-strength="u-meter" placeholder="<?= $id ? 'Leave empty to keep the current password' : '' ?>"><button class="pw-toggle" type="button" data-action="pw-toggle" aria-label="Show password">Show</button></div>
         <div class="strength" id="u-meter"><i></i><i></i><i></i><i></i></div>
-      </div>
-      <div class="field" style="display:flex;align-items:flex-end;padding-bottom:10px">
-        <label class="check"><input type="checkbox" name="must_change_password" value="1" <?= $id ? '' : 'checked' ?>><span>Ask them to set their own password at first sign-in</span></label>
       </div>
     </div>
   </div>

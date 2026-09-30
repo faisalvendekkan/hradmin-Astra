@@ -230,6 +230,17 @@ $config = [
   </div>
 </div>
 
+<div class="progress-loader" id="progress-loader" hidden aria-live="polite" aria-label="Saving">
+  <div class="progress-card">
+    <span class="brand-mark"><?php View::partial('logo'); ?></span>
+    <div class="progress-copy">
+      <strong id="progress-title">Saving</strong>
+      <span id="progress-percent">0%</span>
+    </div>
+    <div class="progress-track"><i id="progress-fill"></i></div>
+  </div>
+</div>
+
 <div class="toasts" id="toasts" role="status" aria-live="polite">
   <?php foreach (take_flashes() as $f): ?>
     <div class="toast t-<?= e($f['type']) ?>"><?= icon($f['type'] === 'error' ? 'alert' : ($f['type'] === 'success' ? 'check-circle' : 'info')) ?><span><?= e($f['message']) ?></span><button type="button" aria-label="Dismiss" data-action="dismiss"><?= icon('x', 'i i-sm') ?></button></div>

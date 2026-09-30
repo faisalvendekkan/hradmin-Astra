@@ -57,30 +57,14 @@ final class AuthController
     public function passwordForm(): void
     {
         Auth::require();
-        view('auth/password', [], 'layouts/bare');
+        flash('info', 'Passwords are managed by an administrator.');
+        redirect('profile');
     }
 
     public function passwordSave(): void
     {
-        $u        = Auth::require();
-        $password = (string) ($_POST['password'] ?? '');
-        if ($problem = Auth::passwordProblem($password, $u['email'])) {
-            flash('error', $problem);
-            redirect('password');
-        }
-        if (!hash_equals($password, (string) ($_POST['password_confirm'] ?? ''))) {
-            flash('error', 'The two passwords do not match.');
-            redirect('password');
-        }
-        if (password_verify($password, $u['password_hash'])) {
-            flash('error', 'Choose a new password that is different from the temporary one.');
-            redirect('password');
-        }
-        DB::run('UPDATE users SET password_hash = ?, must_change_password = 0, session_version = session_version + 1 WHERE id = ?', [Auth::hash($password), $u['id']]);
-        $_SESSION['sv'] = (int) $u['session_version'] + 1;
-        Session::regenerate();
-        Activity::log('password_changed', 'auth', (int) $u['id'], 'Set a new password');
-        flash('success', 'Password updated.');
-        redirect('');
+        Auth::require();
+        flash('info', 'Passwords are managed by an administrator.');
+        redirect('profile');
     }
 }

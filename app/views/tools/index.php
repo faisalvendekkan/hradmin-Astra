@@ -34,7 +34,7 @@
 
 <?php if ($canEdit): ?>
 <dialog id="tool-dialog">
-  <form method="post" action="<?= e(url('tools/save')) ?>">
+  <form method="post" action="<?= e(url('tools/save')) ?>" data-progress>
     <?= csrf_field() ?>
     <input type="hidden" name="kind" value="<?= e($kind) ?>">
     <input type="hidden" name="id" value="0">

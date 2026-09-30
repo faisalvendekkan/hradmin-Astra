@@ -140,9 +140,6 @@ final class Auth
             $_SESSION["intended"] = $_SERVER["REQUEST_URI"] ?? null;
             redirect("login");
         }
-        if ((int) $u["must_change_password"] === 1 && !in_array(App::$route, ["password", "logout"], true)) {
-            redirect("password");
-        }
         if ($perm !== "" && !self::can($perm, $level)) {
             abort(403);
         }

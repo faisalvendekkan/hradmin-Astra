@@ -78,12 +78,10 @@ final class UserController
             'status'      => $status,
             'permissions' => json_encode($role === 'admin' ? new stdClass() : $perms),
         ];
-        $mustChange = !empty($_POST['must_change_password']) ? 1 : 0;
-
         if ($existing) {
             if ($password !== '') {
                 $data['password_hash'] = Auth::hash($password);
-                $data['must_change_password'] = $mustChange;
+                $data['must_change_password'] = 0;
             }
             DB::update('users', $data, $id);
             if ($password !== '' || ($existing['status'] === 'active' && $status === 'suspended')) {
@@ -93,10 +91,10 @@ final class UserController
             flash('success', "Saved {$name}.");
         } else {
             $data['password_hash'] = Auth::hash($password);
-            $data['must_change_password'] = $mustChange;
+            $data['must_change_password'] = 0;
             $id = DB::insert('users', $data);
             Activity::log('created', 'users', $id, "Added user {$email} ({$role})");
-            flash('success', "Added {$name}. Share the password with them securely" . ($mustChange ? ' — they will set their own at first sign-in.' : '.'));
+            flash('success', "Added {$name}. Share the administrator-set password with them securely.");
         }
         forget_input();
         redirect('users');

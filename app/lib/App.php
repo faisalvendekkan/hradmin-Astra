@@ -30,6 +30,7 @@ final class App
         ["GET",  "attendance",                    "AttendanceController@roster"],
         ["POST", "attendance/mark",               "AttendanceController@mark"],
         ["POST", "attendance/mark-all",           "AttendanceController@markAll"],
+        ["GET",  "api/attendance/today",          "AttendanceController@today"],
 
         ["GET",  "candidates",                    "CandidateController@index"],
         ["GET",  "candidates/new",                "CandidateController@create"],

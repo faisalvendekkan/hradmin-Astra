@@ -95,7 +95,7 @@ $formPinned = (int) ($editItem["is_pinned"] ?? 0) === 1;
     <?php endif; ?>
   </div>
 
-  <form method="post" action="<?= e(url("workspace/save")) ?>">
+  <form method="post" action="<?= e(url("workspace/save")) ?>" data-progress>
     <?= csrf_field() ?>
     <input type="hidden" name="id" value="<?= (int) ($editItem["id"] ?? 0) ?>">
 

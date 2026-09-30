@@ -109,12 +109,9 @@
   // ---------- Startup intro ----------
   const intro = $('#app-intro');
   if (intro) {
-    let seen = false;
-    try { seen = sessionStorage.getItem('mhr-intro-seen') === '1'; } catch (e) {}
-    if (!seen && !window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    if (!window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
       intro.hidden = false;
-      try { sessionStorage.setItem('mhr-intro-seen', '1'); } catch (e) {}
-      setTimeout(() => { intro.hidden = true; }, 1500);
+      setTimeout(() => { intro.hidden = true; }, 1050);
     }
   }
 
@@ -257,6 +254,7 @@
       const btn = ev.submitter || form.querySelector('[type=submit]');
       if (btn) setTimeout(() => btn.classList.add('is-busy'), 0);
     }
+    if (form.hasAttribute('data-progress')) Progress.start(form);
   });
 
   document.addEventListener('change', (ev) => {
@@ -576,6 +574,50 @@
     $$('[data-count]').forEach((el) => { el.textContent = counts[el.dataset.count] || 0; });
   };
 
+  // ---------- Dashboard attendance live refresh ----------
+  const liveAttendance = $('[data-attendance-live]');
+  if (liveAttendance) {
+    const labels = { present: 'Present', remote: 'Remote', late: 'Late', on_leave: 'On leave', absent: 'Absent', unmarked: 'Not marked' };
+    const cls = { present: 'c-present', remote: 'c-remote', late: 'c-late', on_leave: 'c-on_leave', absent: 'c-absent', unmarked: 'c-unmarked' };
+    const renderAttendance = (data) => {
+      const active = Math.max(0, Number(data.active) || 0);
+      const marked = Math.max(0, Number(data.marked) || 0);
+      const total = Math.max(1, active);
+      const pct = active ? Math.round(marked / total * 100) : 0;
+      const summary = $('[data-attendance-summary]', liveAttendance);
+      const percent = $('[data-attendance-percent]', liveAttendance);
+      const ring = $('[data-attendance-ring]', liveAttendance);
+      const bar = $('[data-attendance-bar]', liveAttendance);
+      if (summary) summary.textContent = marked + ' of ' + active + ' marked';
+      if (percent) percent.textContent = pct + '%';
+      if (ring) ring.style.setProperty('--p', pct);
+      const counts = { ...(data.marks || {}), unmarked: data.unmarked || 0 };
+      Object.keys(labels).forEach((k) => {
+        const el = $('[data-attendance-count="' + k + '"]', liveAttendance);
+        if (el) el.textContent = counts[k] || 0;
+      });
+      if (bar) {
+        bar.innerHTML = '';
+        ['present', 'remote', 'late', 'on_leave', 'absent', 'unmarked'].forEach((k) => {
+          const n = Number(counts[k]) || 0;
+          if (!n) return;
+          const i = document.createElement('i');
+          i.className = cls[k];
+          i.style.width = Math.round(n / total * 10000) / 100 + '%';
+          i.title = labels[k] + ': ' + n;
+          bar.appendChild(i);
+        });
+      }
+    };
+    const refreshAttendance = async () => {
+      const res = await api('api/attendance/today', null, 'GET');
+      if (res.ok) renderAttendance(res);
+    };
+    refreshAttendance();
+    setInterval(refreshAttendance, 5000);
+    document.addEventListener('visibilitychange', () => { if (!document.hidden) refreshAttendance(); });
+  }
+
   // ---------- CV upload & text extraction ----------
   const cvFile = $('#cv-file');
   if (cvFile) {
@@ -779,6 +821,41 @@
     out.textContent = res.ok ? 'Connected • ' + res.provider + ' • ' + res.model : res.error;
     out.style.color = res.ok ? 'var(--ok)' : 'var(--danger)';
   };
+
+  // ---------- Premium progress for important saves ----------
+  const Progress = (() => {
+    const root = $('#progress-loader');
+    const fill = $('#progress-fill');
+    const pct = $('#progress-percent');
+    const title = $('#progress-title');
+    let timer = null;
+    let value = 0;
+    const set = (n) => {
+      value = Math.max(value, Math.min(100, n));
+      if (fill) fill.style.width = value + '%';
+      if (pct) pct.textContent = value + '%';
+    };
+    const start = (form) => {
+      if (!root || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
+      const submitter = document.activeElement && document.activeElement.matches('button, input') ? document.activeElement : null;
+      const label = submitter?.textContent?.trim() || 'Saving';
+      if (title) title.textContent = /add|save|update|screen/i.test(label) ? label : 'Saving';
+      value = 0;
+      set(4);
+      root.hidden = false;
+      clearInterval(timer);
+      timer = setInterval(() => {
+        const next = value < 62 ? value + 11 : value < 88 ? value + 5 : value + 1;
+        set(Math.min(96, next));
+      }, 85);
+      setTimeout(() => set(100), 720);
+      setTimeout(() => {
+        if (!form || document.visibilityState === 'hidden') return;
+        clearInterval(timer);
+      }, 1800);
+    };
+    return { start };
+  })();
 
   if (provSel && modelSel) {
     provSel.addEventListener('change', () => {

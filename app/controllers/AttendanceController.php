@@ -95,6 +95,26 @@ final class AttendanceController
         redirect('attendance', ['date' => $date]);
     }
 
+    public function today(): void
+    {
+        Auth::require('attendance');
+        $active = (int) DB::val("SELECT COUNT(*) FROM employees WHERE status <> 'inactive'");
+        $marks = array_fill_keys(array_keys(self::STATUSES), 0);
+        foreach (DB::all("SELECT a.status, COUNT(*) c FROM attendance a JOIN employees e ON e.id = a.employee_id WHERE a.work_date = ? AND e.status <> 'inactive' GROUP BY a.status", [today()]) as $r) {
+            if (isset($marks[$r['status']])) {
+                $marks[$r['status']] = (int) $r['c'];
+            }
+        }
+        $marked = array_sum($marks);
+        json_out([
+            'ok' => true,
+            'active' => $active,
+            'marked' => $marked,
+            'unmarked' => max(0, $active - $marked),
+            'marks' => $marks,
+        ]);
+    }
+
     private function time(mixed $v): ?string
     {
         $v = trim((string) $v);

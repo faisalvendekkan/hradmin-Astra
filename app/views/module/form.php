@@ -11,7 +11,7 @@ $cancel = $return !== '' ? url($return) : ($key === 'employees' && $id ? url("em
   </div>
 </div>
 
-<form class="panel" method="post" action="<?= e(url("$key/save")) ?>" data-busy <?= $key === 'leave' ? 'data-leave-form' : '' ?>>
+<form class="panel" method="post" action="<?= e(url("$key/save")) ?>" data-busy data-progress <?= $key === 'leave' ? 'data-leave-form' : '' ?>>
   <?= csrf_field() ?>
   <input type="hidden" name="id" value="<?= (int) $id ?>">
   <input type="hidden" name="return" value="<?= e($return) ?>">

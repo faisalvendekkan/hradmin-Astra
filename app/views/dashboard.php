@@ -36,29 +36,29 @@ $windowPct = 12 + (min($window, 90) / 90) * 86 - 12;
   $total = max(1, $active);
   $markedPct = $active ? round($marked / $total * 100) : 0;
 ?>
-<section class="panel attendance-hero" aria-labelledby="attendance-title">
+<section class="panel attendance-hero" aria-labelledby="attendance-title" data-attendance-live>
   <div class="attendance-hero-main">
     <div>
       <h2 id="attendance-title">Attendance today</h2>
-      <p><?= $marked ?> of <?= $active ?> marked</p>
+      <p data-attendance-summary><?= $marked ?> of <?= $active ?> marked</p>
     </div>
     <a class="btn btn-primary" href="<?= e(url('attendance')) ?>"><?= icon('clock') ?><span>Open roster</span></a>
   </div>
   <div class="attendance-hero-grid">
-    <div class="attendance-ring" style="--p:<?= $markedPct ?>">
-      <b><?= $markedPct ?>%</b>
+    <div class="attendance-ring" style="--p:<?= $markedPct ?>" data-attendance-ring>
+      <b data-attendance-percent><?= $markedPct ?>%</b>
       <span>Marked</span>
     </div>
     <div class="attendance-hero-body">
-      <div class="att-bar" aria-hidden="true">
+      <div class="att-bar" aria-hidden="true" data-attendance-bar>
         <?php foreach (['present', 'remote', 'late', 'on_leave', 'absent'] as $s): if (!empty($attendance['marks'][$s])): ?><i class="c-<?= $s ?>" style="width:<?= round($attendance['marks'][$s] / $total * 100, 2) ?>%"></i><?php endif; endforeach; ?>
         <?php if ($attendance['unmarked'] > 0): ?><i class="c-unmarked" style="width:<?= round($attendance['unmarked'] / $total * 100, 2) ?>%"></i><?php endif; ?>
       </div>
       <div class="att-legend att-legend-hero">
         <?php foreach (['present' => 'Present', 'remote' => 'Remote', 'late' => 'Late', 'on_leave' => 'On leave', 'absent' => 'Absent'] as $s => $l): ?>
-          <span><i class="sw c-<?= $s ?>"></i><?= $l ?><b><?= (int) ($attendance['marks'][$s] ?? 0) ?></b></span>
+          <span><i class="sw c-<?= $s ?>"></i><?= $l ?><b data-attendance-count="<?= e($s) ?>"><?= (int) ($attendance['marks'][$s] ?? 0) ?></b></span>
         <?php endforeach; ?>
-        <span><i class="sw c-unmarked"></i>Not marked<b><?= (int) $attendance['unmarked'] ?></b></span>
+        <span><i class="sw c-unmarked"></i>Not marked<b data-attendance-count="unmarked"><?= (int) $attendance['unmarked'] ?></b></span>
       </div>
     </div>
   </div>
