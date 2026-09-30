@@ -49,7 +49,9 @@
   const themeBtn = $('[data-action="theme"]');
   const setThemeIcon = () => {
     const use = themeBtn && themeBtn.querySelector('use');
-    if (use) use.setAttribute('href', document.documentElement.dataset.theme === 'light' ? '#i-moon' : '#i-sun');
+    const isLight = document.documentElement.dataset.theme === 'light';
+    if (use) use.setAttribute('href', isLight ? '#i-moon' : '#i-sun');
+    $$('[data-theme-label]').forEach((el) => { el.textContent = isLight ? 'Switch to dark' : 'Switch to light'; });
   };
   setThemeIcon();
 
@@ -98,7 +100,7 @@
       case 'ai-test': aiTest(t); break;
       case 'pwa-install': PWA.install(); break;
       case 'pwa-open': window.location.href = appHome; break;
-      case 'pwa-close': PWA.close(true); break;
+      case 'pwa-close': PWA.close(); break;
       case 'pwa-show': PWA.show(true); break;
     }
   });
@@ -127,17 +129,6 @@
     let deferred = null;
     let installed = standalone;
 
-    const dismissed = () => {
-      try {
-        const until = Number(localStorage.getItem('mhr-pwa-dismissed') || 0);
-        return until && Date.now() < until;
-      } catch (e) {
-        return false;
-      }
-    };
-    const rememberDismissed = () => {
-      try { localStorage.setItem('mhr-pwa-dismissed', String(Date.now() + 14 * 86400000)); } catch (e) {}
-    };
     const setInstalled = (v) => {
       installed = !!v;
       if (installed) {
@@ -183,12 +174,10 @@
     const show = (manual = false) => {
       if (!prompt || standalone) return;
       updatePrompt();
-      if (!manual && dismissed()) return;
       prompt.hidden = false;
     };
-    const close = (persist = false) => {
+    const close = () => {
       if (prompt) prompt.hidden = true;
-      if (persist) rememberDismissed();
     };
     const install = async () => {
       if (installed) {
@@ -224,7 +213,6 @@
         ev.preventDefault();
         deferred = ev;
         updateSettings();
-        setTimeout(() => show(false), 700);
       });
       window.addEventListener('appinstalled', () => {
         deferred = null;
@@ -232,7 +220,7 @@
         setInstalled(true);
         toast('AI Workspace installed.', 'success');
       });
-      setTimeout(updateSettings, 200);
+      setTimeout(() => { updateSettings(); show(false); }, 700);
     } else {
       updateSettings();
     }

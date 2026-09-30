@@ -41,11 +41,11 @@ $nav = [
         ['ai-tools', 'AI integrations', 'spark', 'ai_tools'],
         ['apps', 'Applications', 'apps', 'apps'],
         ['workspace', 'Prompts & Notes', 'file', 'workspace_items'],
+        ['settings', 'Settings', 'sliders', null],
     ],
     'Administration' => [
         ['users', 'Users & access', 'shield', 'admin'],
         ['activity', 'Activity log', 'activity', 'admin'],
-        ['settings', 'Settings', 'sliders', 'admin'],
     ],
 ];
 $isActive = function (string $path) use ($current): bool {

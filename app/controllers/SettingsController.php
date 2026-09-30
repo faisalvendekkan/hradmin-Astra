@@ -5,11 +5,13 @@ final class SettingsController
 {
     public function index(): void
     {
-        Auth::require('admin');
-        $key = (string) setting('ai_key', '');
+        $u = Auth::require();
+        $isAdmin = ($u['role'] ?? '') === 'admin';
+        $key = $isAdmin ? (string) setting('ai_key', '') : '';
         $plain = $key !== '' ? Crypto::decrypt($key) : '';
         view('settings/index', [
             'title'    => 'Settings',
+            'isAdmin'  => $isAdmin,
             'keyHint'  => $plain !== '' ? '•••• ' . mb_substr($plain, -4) : '',
             'dataDir'  => Config::dataDir(),
             'outside'  => Config::dataDir() ? Config::isOutsideWebroot((string) Config::dataDir()) : false,

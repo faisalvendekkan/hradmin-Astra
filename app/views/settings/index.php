@@ -10,13 +10,22 @@ $mcpHasToken = setting('mcp_token_hash', '') !== '';
 <div class="page-head">
   <div>
     <h1>Settings</h1>
-    <p>Company details, the AI assistant, security and backups.</p>
+    <p><?= $isAdmin ? 'Personal preferences, company details, the AI assistant, security and backups.' : 'Personal preferences for your workspace.' ?></p>
   </div>
-  <div class="page-actions"><a class="btn" href="<?= e(url('activity')) ?>"><?= icon('activity') ?>Activity log</a></div>
+  <?php if ($isAdmin): ?><div class="page-actions"><a class="btn" href="<?= e(url('activity')) ?>"><?= icon('activity') ?>Activity log</a></div><?php endif; ?>
 </div>
 
 <div class="grid-eq">
   <div class="stack">
+    <section class="panel">
+      <div class="panel-head"><div><h2>Personal workspace</h2><p>Saved in this browser for your account experience</p></div></div>
+      <ul class="list">
+        <li><?= icon('sun') ?><div class="grow"><div class="title">Theme</div><div class="sub">Switch between premium light and dark views.</div></div><button class="btn btn-sm" type="button" data-action="theme"><span data-theme-label>Switch theme</span></button></li>
+        <li><?= icon('apps') ?><div class="grow"><div class="title">App shortcut</div><div class="sub" id="pwa-settings-status">Install this workspace on supported browsers, or open it if it is already installed.</div></div><button class="btn btn-sm" type="button" data-action="pwa-show" id="pwa-settings-button"><?= icon('download') ?>Install app</button></li>
+      </ul>
+    </section>
+
+    <?php if ($isAdmin): ?>
     <form class="panel" method="post" action="<?= e(url('settings')) ?>" data-busy>
       <?= csrf_field() ?><input type="hidden" name="section" value="general">
       <div class="panel-head"><div><h2>Company</h2><p>Shown in the sidebar, emails and AI drafts</p></div></div>
@@ -38,11 +47,12 @@ $mcpHasToken = setting('mcp_token_hash', '') !== '';
         <li><?= icon('shield') ?><div class="grow"><div class="title">Connection</div><div class="sub"><?= is_https() ? 'HTTPS with strict transport security' : 'Not using HTTPS. Turn on SSL in hPanel, then enable the redirect in .htaccess.' ?></div></div><span class="badge tone-<?= is_https() ? 'ok' : 'danger' ?>"><?= is_https() ? 'Secure' : 'Action needed' ?></span></li>
         <li><?= icon('db') ?><div class="grow"><div class="title">Database schema</div><div class="sub">Version <?= $schema ?>. New migrations run automatically after each deploy.</div></div></li>
         <li><?= icon('download') ?><div class="grow"><div class="title">Full backup</div><div class="sub">Every record as a JSON file. Also use hPanel backups for the database.</div></div><a class="btn btn-sm" href="<?= e(url('settings/backup')) ?>">Download</a></li>
-        <li><?= icon('apps') ?><div class="grow"><div class="title">App shortcut</div><div class="sub" id="pwa-settings-status">Install this workspace on supported browsers, or open it if it is already installed.</div></div><button class="btn btn-sm" type="button" data-action="pwa-show" id="pwa-settings-button"><?= icon('download') ?>Install app</button></li>
       </ul>
     </section>
+    <?php endif; ?>
   </div>
 
+  <?php if ($isAdmin): ?>
   <form class="panel" method="post" action="<?= e(url('settings')) ?>" id="ai" data-busy>
     <?= csrf_field() ?><input type="hidden" name="section" value="ai">
     <div class="panel-head"><div><h2>AI assistant</h2><p><?= $aiUsage ?> requests this month</p></div><?= AI::configured() ? '<span class="badge tone-ok">Connected</span>' : '<span class="badge">Off</span>' ?></div>
@@ -82,8 +92,10 @@ $mcpHasToken = setting('mcp_token_hash', '') !== '';
       <span class="soft" id="ai-test-result" style="font-size:13px"></span>
     </div>
   </form>
+  <?php endif; ?>
 </div>
 
+<?php if ($isAdmin): ?>
 <form class="panel" method="post" action="<?= e(url('settings')) ?>" id="mcp" data-busy style="margin-top:20px">
   <?= csrf_field() ?><input type="hidden" name="section" value="mcp">
   <div class="panel-head">
@@ -117,3 +129,4 @@ $mcpHasToken = setting('mcp_token_hash', '') !== '';
     <button class="btn btn-primary" type="submit">Save MCP settings</button>
   </div>
 </form>
+<?php endif; ?>
